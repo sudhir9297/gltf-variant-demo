@@ -5,3 +5,7 @@
   background-image: radial-gradient(circle, #e5e7eb 1.5px, transparent 1.5px);
   background-size: 24px 24px;
 }
+
+body {
+  @apply text-sm;
+}
