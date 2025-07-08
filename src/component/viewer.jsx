@@ -5,7 +5,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import Button from "./Button.jsx";
 import { Card, CardContent } from "./Card.jsx";
-import { Upload } from "lucide-react";
 
 function extractGLBInfo(gltf) {
   const info = {
@@ -169,6 +168,7 @@ export default function Viewer({
   setVariantsData,
 }) {
   const fileInputRef = useRef();
+  const controls = useRef();
 
   const handleButtonClick = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -189,15 +189,22 @@ export default function Viewer({
   };
 
   const handleLoadSample = () => {
-    // Simulate a drop event for parent handler with public/chair.glb
+    // Simulate a drop event for parent handler with public/gltf-variant-demo/shoe.glb
     const event = {
       preventDefault: () => {},
       dataTransfer: { files: [] },
-      sampleUrl: "/chair.glb",
+      sampleUrl: "/gltf-variant-demo/shoe.glb",
     };
     if (onDrop) {
-      onDrop(event, "/chair.glb");
+      onDrop(event, "/gltf-variant-demo/shoe.glb");
     }
+  };
+
+  const handleClear = () => {
+    if (controls.current) {
+      controls.current.reset();
+    }
+    clearModel();
   };
 
   return (
@@ -218,29 +225,26 @@ export default function Viewer({
             } flex flex-col items-center justify-center`}
           >
             <CardContent className="p-8 text-center flex flex-col items-center">
-              <div className="mb-6">
-                <Upload className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                  Drop GLB Model Here
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Supports models with material variants
-                </p>
+              <div className="text-gray-800 text-xs gap-1 flex flex-col">
+                <div>Drop glb model here</div>
+                <span>or</span>
+                <div className="flex items-center gap-2">
+                  <span
+                    onClick={handleButtonClick}
+                    className="text-blue-500 cursor-pointer hover:underline"
+                  >
+                    Select file
+                  </span>
+                  <span className="text-gray-600">or</span>
+                  <span
+                    onClick={handleLoadSample}
+                    className="text-blue-500 cursor-pointer hover:underline"
+                  >
+                    Load sample model
+                  </span>
+                </div>
               </div>
-              <Button
-                className="w-full mt-2"
-                onClick={handleButtonClick}
-                type="button"
-              >
-                Select GLB File
-              </Button>
-              <Button
-                className="w-full mt-2"
-                onClick={handleLoadSample}
-                type="button"
-              >
-                Load Sample Model
-              </Button>
+
               <input
                 ref={fileInputRef}
                 type="file"
@@ -263,6 +267,7 @@ export default function Viewer({
           </Suspense>
         )}
         <OrbitControls
+          ref={controls}
           makeDefault
           enablePan={true}
           enableZoom={true}
@@ -270,12 +275,12 @@ export default function Viewer({
         />
       </Canvas>
       {modelUrl && (
-        <Button
-          onClick={clearModel}
-          className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm"
+        <div
+          onClick={handleClear}
+          className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-xs cursor-pointer hover:underline"
         >
           Clear
-        </Button>
+        </div>
       )}
     </div>
   );

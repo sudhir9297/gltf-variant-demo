@@ -16,12 +16,17 @@ export default function App() {
       e.preventDefault();
       setIsDragOver(false);
       if (sampleUrl || e.sampleUrl) {
-        setModelFile({
-          name: "chair.glb",
-          size: 0,
-          type: "model/gltf-binary",
-        });
-        setModelUrl(sampleUrl || e.sampleUrl);
+        const url = sampleUrl || e.sampleUrl;
+        fetch(url)
+          .then((res) => res.blob())
+          .then((blob) => {
+            setModelFile({
+              name: url.split("/").pop(),
+              size: blob.size,
+              type: blob.type || "model/gltf-binary",
+            });
+            setModelUrl(url);
+          });
         return;
       }
       const files = e.dataTransfer.files;
@@ -77,7 +82,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex justify-center items-center polka-bg">
-      <div className="flex gap-10 items-start">
+      <div className="flex gap-6 items-center">
         {/* Left Side - 3D Viewer */}
         <div className="w-[648px] h-[648px] rounded-3xl shadow-lg overflow-hidden bg-white">
           <Viewer
