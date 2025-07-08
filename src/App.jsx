@@ -12,9 +12,18 @@ export default function App() {
 
   // Drag and drop handlers
   const handleDrop = useCallback(
-    (e) => {
+    (e, sampleUrl) => {
       e.preventDefault();
       setIsDragOver(false);
+      if (sampleUrl || e.sampleUrl) {
+        setModelFile({
+          name: "chair.glb",
+          size: 0,
+          type: "model/gltf-binary",
+        });
+        setModelUrl(sampleUrl || e.sampleUrl);
+        return;
+      }
       const files = e.dataTransfer.files;
       if (files[0] && files[0].name.toLowerCase().endsWith(".glb")) {
         const file = files[0];

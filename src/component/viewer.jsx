@@ -188,6 +188,18 @@ export default function Viewer({
     }
   };
 
+  const handleLoadSample = () => {
+    // Simulate a drop event for parent handler with public/chair.glb
+    const event = {
+      preventDefault: () => {},
+      dataTransfer: { files: [] },
+      sampleUrl: "/chair.glb",
+    };
+    if (onDrop) {
+      onDrop(event, "/chair.glb");
+    }
+  };
+
   return (
     <div className="relative w-full h-full">
       {!modelUrl && (
@@ -221,6 +233,13 @@ export default function Viewer({
                 type="button"
               >
                 Select GLB File
+              </Button>
+              <Button
+                className="w-full mt-2"
+                onClick={handleLoadSample}
+                type="button"
+              >
+                Load Sample Model
               </Button>
               <input
                 ref={fileInputRef}
