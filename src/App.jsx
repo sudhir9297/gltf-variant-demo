@@ -4,13 +4,11 @@ import Viewer from "./component/viewer.jsx";
 import Sidemenu from "./component/sidemenu.jsx";
 
 export default function App() {
-  // Shared state
   const [modelFile, setModelFile] = useState(null);
   const [modelUrl, setModelUrl] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [variantsData, setVariantsData] = useState(null);
 
-  // Drag and drop handlers
   const handleDrop = useCallback(
     (e, sampleUrl) => {
       e.preventDefault();
@@ -52,17 +50,6 @@ export default function App() {
     setIsDragOver(false);
   }, []);
 
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (file && file.name.toLowerCase().endsWith(".glb")) {
-      setModelFile(file);
-      if (modelUrl) {
-        URL.revokeObjectURL(modelUrl);
-      }
-      setModelUrl(URL.createObjectURL(file));
-    }
-  };
-
   const clearModel = () => {
     if (modelUrl) {
       URL.revokeObjectURL(modelUrl);
@@ -82,8 +69,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex justify-center items-center polka-bg">
-      <div className="flex gap-6 items-center">
-        {/* Left Side - 3D Viewer */}
+      <div className="flex gap-10 items-center">
         <div className="w-[648px] h-[648px] rounded-3xl shadow-lg overflow-hidden bg-white">
           <Viewer
             modelUrl={modelUrl}
@@ -91,12 +77,10 @@ export default function App() {
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            onFileSelect={handleFileSelect}
             clearModel={clearModel}
             setVariantsData={setVariantsData}
           />
         </div>
-        {/* Right Side - Sidemenu */}
         <Sidemenu
           modelFile={modelFile}
           variantsData={variantsData}

@@ -1,9 +1,8 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls, Environment, Bounds, Center } from "@react-three/drei";
+import { OrbitControls, Environment, Bounds } from "@react-three/drei";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import Button from "./Button.jsx";
 import { Card, CardContent } from "./Card.jsx";
 
 function extractGLBInfo(gltf) {
@@ -244,7 +243,6 @@ export default function Viewer({
                   </span>
                 </div>
               </div>
-
               <input
                 ref={fileInputRef}
                 type="file"
