@@ -66,6 +66,76 @@ function extractGLBInfo(gltf) {
   return info;
 }
 
+function extractActiveVariant(gltfData) {
+  const result = {
+    activeVariant: null,
+    error: null,
+  };
+
+  try {
+    // Check if the file uses KHR_materials_variants extension
+    if (
+      !gltfData.extensionsUsed ||
+      !gltfData.extensionsUsed.includes("KHR_materials_variants")
+    ) {
+      result.error = "File does not use KHR_materials_variants extension";
+      return result;
+    }
+
+    // Get the variants list from the global extension
+    const globalVariants =
+      gltfData.extensions?.KHR_materials_variants?.variants;
+    if (!globalVariants || !Array.isArray(globalVariants)) {
+      result.error = "No variants found in global extensions";
+      return result;
+    }
+
+    // Find the first mesh with material variants
+    const meshes = gltfData.meshes || [];
+
+    for (const mesh of meshes) {
+      if (!mesh.primitives) continue;
+
+      for (const primitive of mesh.primitives) {
+        // Get the currently assigned material
+        const activeMaterialIndex = primitive.material;
+
+        // Check if this primitive has variant mappings
+        const variantExtension = primitive.extensions?.KHR_materials_variants;
+        if (!variantExtension || !variantExtension.mappings) continue;
+
+        // Find which variant corresponds to the active material
+        for (const mapping of variantExtension.mappings) {
+          if (mapping.material === activeMaterialIndex) {
+            // Get the variant index(es) for this material
+            const variantIndices = mapping.variants || [];
+
+            if (variantIndices.length > 0) {
+              const variantIndex = variantIndices[0]; // Take the first variant
+
+              // Look up the variant name
+              const variant = globalVariants[variantIndex];
+              if (variant) {
+                result.activeVariant = {
+                  index: variantIndex,
+                  name: variant.name,
+                };
+                return result;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    result.error = "No active variant found in mesh primitives";
+    return result;
+  } catch (error) {
+    result.error = `Error parsing glTF data: ${error.message}`;
+    return result;
+  }
+}
+
 function GLBModel({ url, setVariantsData }) {
   const gltf = useLoader(GLTFLoader, url, (loader) => {
     const dracoLoader = new DRACOLoader();
@@ -143,11 +213,15 @@ function GLBModel({ url, setVariantsData }) {
         setVariantsData((prev) => ({ ...prev, currentVariant: variantName }));
       };
     }
+    // Use extractActiveVariant and log the result
+    const activeVariantResult = extractActiveVariant(gltf.parser.json);
+    console.log("Active variant info:", activeVariantResult);
     setVariantsData({
       variants,
       currentVariant,
       selectVariant,
       glbInfo,
+      activeVariant: activeVariantResult.activeVariant,
     });
   }, [gltf, setVariantsData]);
   return (
